@@ -28,12 +28,43 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.searchBox = new System.Windows.Forms.TextBox();
+            this.searchResults = new System.Windows.Forms.ListView();
+            this.SuspendLayout();
+            // 
+            // searchBox
+            // 
+            this.searchBox.Location = new System.Drawing.Point(13, 13);
+            this.searchBox.Name = "searchBox";
+            this.searchBox.Size = new System.Drawing.Size(241, 20);
+            this.searchBox.TabIndex = 0;
+            // 
+            // searchResults
+            // 
+            this.searchResults.Location = new System.Drawing.Point(13, 40);
+            this.searchResults.Name = "searchResults";
+            this.searchResults.Size = new System.Drawing.Size(241, 198);
+            this.searchResults.TabIndex = 1;
+            this.searchResults.UseCompatibleStateImageBehavior = false;
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(522, 523);
+            this.Controls.Add(this.searchResults);
+            this.Controls.Add(this.searchBox);
+            this.Name = "Form1";
+            this.Text = "Snouser";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
+
+        private System.Windows.Forms.TextBox searchBox;
+        private System.Windows.Forms.ListView searchResults;
     }
 }
 
