@@ -18,7 +18,7 @@ namespace Snouser
 
             SnouserDatabase s = new SnouserDatabase();
             s.CreateNewDb();
-            s.ImportData(@"C:\Users\MatthewCordell\Downloads\NCTS_SCT_RF2_DISTRIBUTION_32506021000036107-20160229-DELTA (1).zip");
+            s.ImportZip(@"C:\Users\MatthewCordell\Downloads\NCTS_SCT_RF2_DISTRIBUTION_32506021000036107-20160331-FULL.zip","today is the day");
             this.searchBox.Text = "import complete apparently";
         }
     }

@@ -11,6 +11,9 @@ using System.IO.Compression;
 
 namespace Snouser
 {
+
+    enum RF2format { Full, Snapshot, Delta};
+
     class SnouserDatabase
     {
         const string dbFile = "Snouser.db";
@@ -27,10 +30,12 @@ namespace Snouser
 
             // SnouserDB only uses a description table.
             ExecuteNonQuery(@"DROP TABLE IF EXISTS import_descriptions;
-                              CREATE TABLE import_descriptions ( id LONG, effectiveTime INTEGER, active INTEGER, moduleId LONG, conceptId LONG, languageCode TEXT, typeId LONG, term TEXT, caseSignificanceId LONG);");
+                              CREATE TABLE import_descriptions ( id LONG, effectiveTime INTEGER, active INTEGER, moduleId LONG, conceptId LONG, languageCode TEXT, typeId LONG, term TEXT, caseSignificanceId LONG);
+                              DROP TABLE IF EXISTS versionLog;                              
+                              CREATE TABLE versionLog (uri TEXT, update TEXT);");
         }
-
-        #region Database helper classes
+      
+        #region Database helper methods
         private void ExecuteNonQuery(string txtQuery)
         {
             using (SQLiteConnection cnn = new SQLiteConnection(connString))
@@ -80,7 +85,7 @@ namespace Snouser
 
         #endregion
 
-        public void ImportData(string zipPath)
+        public void ImportZip(string zipPath, string versionURI)
         {
             string temp = Directory.GetCurrentDirectory() + @"\temp\";
             if (Directory.Exists(temp))
@@ -94,7 +99,7 @@ namespace Snouser
                 archive.ExtractToDirectory(temp);
                 //find the RF2 delta directory (only expecting one!)
                 //string directory = Directory.GetDirectories("tempExtract", @"RF2Release\Delta\Terminology").FirstOrDefault()
-                string file = Directory.GetFiles(temp, "*Description_Delta*.txt", System.IO.SearchOption.AllDirectories).FirstOrDefault();
+                string file = Directory.GetFiles(temp, "*Description_*.txt", System.IO.SearchOption.AllDirectories).FirstOrDefault();
 
                 tablePump(file);
                                 
@@ -105,8 +110,35 @@ namespace Snouser
             {
                 Directory.Delete(temp, true);
             }
+
+            UpdateVersionLog(versionURI);
         }
 
+        private void UpdateVersionLog(string versionURI)
+        {
+            using (SQLiteConnection cnn = new SQLiteConnection(connString))
+            {
+                string insertCommand = "INSERT INTO versionLog VALUES (@P0,@P1);";
+                cnn.Open();
+                SQLiteCommand mycommand = new SQLiteCommand(cnn);
+                mycommand.Parameters.AddWithValue("@P0",versionURI);
+                mycommand.Parameters.AddWithValue("@P1",DateTime.Now.ToString());
+
+                mycommand.CommandText = insertCommand;
+
+            }
+        }
+
+        public string GetLatestVersion()
+        {
+            string v = null;
+
+            return v;
+        }
+
+
+
+        //basic pump, just loads into descriptions file.
         private void tablePump(string inFile)
         {
             using (TextReader tr = File.OpenText(inFile))
