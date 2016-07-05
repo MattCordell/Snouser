@@ -19,7 +19,17 @@ namespace Snouser
         const string dbFile = "Snouser.db";
         private string connString = "data source=" + dbFile + ";Version=3;Cache Size=10000;Page Size=4096;Synchronous=NORMAL;Journal Mode=WAL;";
 
-        public void CreateNewDb()
+        public SnouserDatabase()
+        {
+            //if the database doesn't exist, initialise.
+            //default is March release
+            if (!File.Exists(dbFile))
+            {
+                CreateNewDb();
+            }
+        }
+
+        private void CreateNewDb()
         {
             if (File.Exists(dbFile))
             {
@@ -30,11 +40,15 @@ namespace Snouser
 
             // SnouserDB only uses a description table.
             ExecuteNonQuery(@"DROP TABLE IF EXISTS import_descriptions;
-                              CREATE TABLE import_descriptions ( id LONG, effectiveTime INTEGER, active INTEGER, moduleId LONG, conceptId LONG, languageCode TEXT, typeId LONG, term TEXT, caseSignificanceId LONG);
-                              DROP TABLE IF EXISTS versionLog;                              
-                              CREATE TABLE versionLog (uri TEXT, update TEXT);");
+                              CREATE TABLE import_descriptions ( id LONG, effectiveTime INTEGER, active INTEGER, moduleId LONG, conceptId LONG, languageCode TEXT, typeId LONG, term TEXT, caseSignificanceId LONG);");
+            // Table to track versions imported into the system
+            ExecuteNonQuery(@"DROP TABLE IF EXISTS updateLog;
+                              CREATE TABLE updateLog ( vURI TEXT, logTime TEXT);");
+
+            ImportZip(@"C:\Users\MatthewCordell\Downloads\NCTS_SCT_RF2_DISTRIBUTION_32506021000036107-20160331-FULL.zip", "http://snomed.info/sct/32506021000036107/version/20160331");
+
         }
-      
+
         #region Database helper methods
         private void ExecuteNonQuery(string txtQuery)
         {
@@ -86,7 +100,7 @@ namespace Snouser
         #endregion
 
         public void ImportZip(string zipPath, string versionURI)
-        {
+        {            
             string temp = Directory.GetCurrentDirectory() + @"\temp\";
             if (Directory.Exists(temp))
             {
@@ -111,32 +125,29 @@ namespace Snouser
                 Directory.Delete(temp, true);
             }
 
+            //log the version just imported
             UpdateVersionLog(versionURI);
         }
 
         private void UpdateVersionLog(string versionURI)
         {
-            using (SQLiteConnection cnn = new SQLiteConnection(connString))
-            {
-                string insertCommand = "INSERT INTO versionLog VALUES (@P0,@P1);";
-                cnn.Open();
-                SQLiteCommand mycommand = new SQLiteCommand(cnn);
-                mycommand.Parameters.AddWithValue("@P0",versionURI);
-                mycommand.Parameters.AddWithValue("@P1",DateTime.Now.ToString());
-
-                mycommand.CommandText = insertCommand;
-
-            }
+            string insertCommand = String.Format("INSERT INTO updateLog VALUES (\"{0}\",\"{1}\");", versionURI, DateTime.Now.ToString());
+            ExecuteNonQuery(insertCommand);            
         }
 
-        public string GetLatestVersion()
+        public string GetCurrentTerminologyVersionUsed()
         {
-            string v = null;
+            string q = "select vURI from updateLog order by logTime desc limit 1;";
 
-            return v;
+            return QueryValue(q);
         }
 
+        public string GetLastUpdateTime()
+        {
+            string q = "select logTime from updateLog order by logTime desc limit 1;";
 
+            return QueryValue(q);    
+        }
 
         //basic pump, just loads into descriptions file.
         private void tablePump(string inFile)
@@ -186,6 +197,21 @@ namespace Snouser
             ExecuteNonQuery(q2);
         }
 
+        // returns search results from input string
+        public DataTable PerformSearch(string searchString)
+        {
+            //improve the magic here
+            StringBuilder s = new StringBuilder();
+            foreach (var token in searchString.Split(' '))
+            {
+                s.Append(token).Append("* ");
+            }
+
+
+            string searchQuery = String.Format("select * from FTSsearcher where term match '{0}' limit 10;",s.ToString());
+
+            return QueryResultSet(searchQuery);
+        }
     }
 
 }
