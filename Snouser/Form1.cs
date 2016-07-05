@@ -62,10 +62,19 @@ namespace Snouser
         {
             SnouserDatabase s = new SnouserDatabase();
             SCTsyndication synd = new SCTsyndication();
+            try
+            {
+                this.Text = "Updating...";
+                string zipurl = synd.FetchDeltaURL(s.GetCurrentTerminologyVersionUsed());
+                string zipversion = synd.FetchDeltaVersion(s.GetCurrentTerminologyVersionUsed());
+                s.ImportZip(zipurl, zipversion);
+            }
+            catch (Exception)
+            {
 
-            string zipurl = synd.FetchDeltaURL(s.GetCurrentTerminologyVersionUsed());
-            string zipversion = synd.FetchDeltaVersion(s.GetCurrentTerminologyVersionUsed());
-            s.ImportZip(zipurl, zipversion);
+                throw;
+            }
+            
             this.Parent.Refresh();
         }
     }

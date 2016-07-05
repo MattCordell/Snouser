@@ -7,7 +7,7 @@ using System.Data.SQLite;
 using System.Data;
 using System.IO;
 using System.IO.Compression;
-
+using System.Net;
 
 namespace Snouser
 {
@@ -107,7 +107,19 @@ namespace Snouser
                 Directory.Delete(temp, true);
             }
 
-            using (ZipArchive archive = ZipFile.OpenRead(zipPath))
+            Uri zipUri = new Uri(zipPath);
+            
+            using (var client = new WebClient())
+            {
+                //bit of debug code to accept self signed certs.
+                //change to alternative, with specific conditions,
+                #if DEBUG
+                System.Net.ServicePointManager.ServerCertificateValidationCallback += (se, cert, chain, sslerror) => true;
+                #endif
+                client.DownloadFile(zipUri, @"patch.zip");              
+            }
+
+            using (ZipArchive archive = ZipFile.OpenRead(@"patch.zip"))
             {
 
                 archive.ExtractToDirectory(temp);
@@ -115,7 +127,7 @@ namespace Snouser
                 string file = Directory.GetFiles(temp, "*Description_*.txt", System.IO.SearchOption.AllDirectories).FirstOrDefault();
 
                 tablePump(file);
-                                
+
             }
 
             //clean up temp directory
@@ -189,9 +201,10 @@ namespace Snouser
                     mycommand.ExecuteNonQuery();
                 }
             }
-
+            string q0 = @"DROP TABLE if exists FTSsearcher";
             string q1 = @"CREATE VIRTUAL TABLE FTSsearcher USING FTS4(conceptId, active,typeId,term, tokenize=porter);";
             string q2 = @"INSERT INTO FTSsearcher SELECT conceptId, active,typeId,term from import_descriptions;";
+            ExecuteNonQuery(q0);
             ExecuteNonQuery(q1);
             ExecuteNonQuery(q2);
         }
