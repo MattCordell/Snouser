@@ -106,6 +106,10 @@ namespace Snouser
             {
                 Directory.Delete(temp, true);
             }
+            else
+            {
+                Directory.CreateDirectory(temp);
+            }
 
             Uri zipUri = new Uri(zipPath);
             
@@ -116,10 +120,10 @@ namespace Snouser
                 #if DEBUG
                 System.Net.ServicePointManager.ServerCertificateValidationCallback += (se, cert, chain, sslerror) => true;
                 #endif
-                client.DownloadFile(zipUri, @"patch.zip");              
+                client.DownloadFile(zipUri, temp + @"patch.zip");              
             }
 
-            using (ZipArchive archive = ZipFile.OpenRead(@"patch.zip"))
+            using (ZipArchive archive = ZipFile.OpenRead(temp + @"patch.zip"))
             {
 
                 archive.ExtractToDirectory(temp);
@@ -201,12 +205,19 @@ namespace Snouser
                     mycommand.ExecuteNonQuery();
                 }
             }
+            Console.WriteLine("creating FTS table");
+            var timer = new System.Diagnostics.Stopwatch();
+            timer.Start();
+
             string q0 = @"DROP TABLE if exists FTSsearcher";
             string q1 = @"CREATE VIRTUAL TABLE FTSsearcher USING FTS4(conceptId, active,typeId,term, tokenize=porter);";
             string q2 = @"INSERT INTO FTSsearcher SELECT conceptId, active,typeId,term from import_descriptions;";
             ExecuteNonQuery(q0);
             ExecuteNonQuery(q1);
             ExecuteNonQuery(q2);
+
+            timer.Stop();
+            Console.WriteLine("FTS Import done"+timer.ElapsedMilliseconds.ToString());
         }
 
         // returns search results from input string

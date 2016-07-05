@@ -16,13 +16,14 @@ namespace Snouser
         {
             InitializeComponent();
 
+            this.searchBox.Text = "search for something...";            
+            UpdateUIelements();
+        }
+
+        private void UpdateUIelements()
+        {
             SnouserDatabase s = new SnouserDatabase();
             SCTsyndication synd = new SCTsyndication();
-
-            this.searchBox.Text = "search for something...";
-            this.label_version.Text = s.GetCurrentTerminologyVersionUsed();
-            this.label_lastupdated.Text = s.GetLastUpdateTime();
-            
 
             if (synd.IsUpToDate(s.GetCurrentTerminologyVersionUsed()))
             {
@@ -35,7 +36,12 @@ namespace Snouser
                 btn_Update.Text = "Update Available";
                 btn_Update.Enabled = true;
                 btn_Update.BackColor = Color.OrangeRed;
-            }            
+            }
+
+            this.label_version.Text = s.GetCurrentTerminologyVersionUsed();
+            this.label_lastupdated.Text = s.GetLastUpdateTime();
+
+            this.Refresh();
         }
 
         private void searchBox_TextChanged(object sender, EventArgs e)
@@ -52,30 +58,29 @@ namespace Snouser
                     col.Visible = false;
                 }
                 //show the desired
-                dataGridView1.Columns["term"].Visible = true;                
-               
+                dataGridView1.Columns["term"].Visible = true;                               
             }
 
         }
 
         private void btn_Update_Click(object sender, EventArgs e)
         {
-            SnouserDatabase s = new SnouserDatabase();
+            SnouserDatabase sdb = new SnouserDatabase();
             SCTsyndication synd = new SCTsyndication();
-            try
-            {
-                this.Text = "Updating...";
-                string zipurl = synd.FetchDeltaURL(s.GetCurrentTerminologyVersionUsed());
-                string zipversion = synd.FetchDeltaVersion(s.GetCurrentTerminologyVersionUsed());
-                s.ImportZip(zipurl, zipversion);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
             
-            this.Parent.Refresh();
+            btn_Update.Text = "Updating...";
+            btn_Update.Enabled = false;
+            btn_Update.BackColor = Color.Cornsilk;
+            UseWaitCursor = true;
+            this.Refresh();
+            string zipurl = synd.FetchDeltaURL(sdb.GetCurrentTerminologyVersionUsed());
+            string zipversion = synd.FetchDeltaVersion(sdb.GetCurrentTerminologyVersionUsed());
+            sdb.ImportZip(zipurl, zipversion);
+            btn_Update.Text = "Update done";
+            System.Threading.Thread.Sleep(10000);
+            UseWaitCursor = false;
+            UpdateUIelements();
+            this.Refresh();                                 
         }
     }
 }
