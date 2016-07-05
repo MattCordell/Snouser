@@ -41,6 +41,8 @@ namespace Snouser
             // SnouserDB only uses a description table.
             ExecuteNonQuery(@"DROP TABLE IF EXISTS import_descriptions;
                               CREATE TABLE import_descriptions ( id LONG, effectiveTime INTEGER, active INTEGER, moduleId LONG, conceptId LONG, languageCode TEXT, typeId LONG, term TEXT, caseSignificanceId LONG);");
+            ExecuteNonQuery(@"DROP TABLE if exists FTSsearcher
+                              CREATE VIRTUAL TABLE FTSsearcher USING FTS4(conceptId, active,typeId,term, tokenize=porter);");
             // Table to track versions imported into the system
             ExecuteNonQuery(@"DROP TABLE IF EXISTS updateLog;
                               CREATE TABLE updateLog ( vURI TEXT, logTime TEXT);");
@@ -172,7 +174,8 @@ namespace Snouser
                 using (SQLiteConnection cnn = new SQLiteConnection(connString))
                 {
                     string line;
-                    string insertCommand = "INSERT INTO import_descriptions VALUES (@P0,@P1,@P2,@P3,@P4,@P5,@P6,@P7,@P8)";
+                    string insertCommand = "INSERT INTO import_descriptions VALUES (@P0,@P1,@P2,@P3,@P4,@P5,@P6,@P7,@P8); "+
+                                           "INSERT INTO FTSsearcher VALUES (@P4, @P2,@P6,@P7);";
                     cnn.Open();
                     SQLiteCommand mycommand = new SQLiteCommand("begin", cnn);
                     mycommand.ExecuteNonQuery();
@@ -184,8 +187,6 @@ namespace Snouser
 
                     while ((line = tr.ReadLine()) != null)
                     {
-
-
                         string[] csv = line.Split('\t');
 
                         mycommand.Parameters.AddWithValue("@P0", csv[0]);
@@ -204,20 +205,7 @@ namespace Snouser
                     mycommand.CommandText = "end";
                     mycommand.ExecuteNonQuery();
                 }
-            }
-            Console.WriteLine("creating FTS table");
-            var timer = new System.Diagnostics.Stopwatch();
-            timer.Start();
-
-            string q0 = @"DROP TABLE if exists FTSsearcher";
-            string q1 = @"CREATE VIRTUAL TABLE FTSsearcher USING FTS4(conceptId, active,typeId,term, tokenize=porter);";
-            string q2 = @"INSERT INTO FTSsearcher SELECT conceptId, active,typeId,term from import_descriptions;";
-            ExecuteNonQuery(q0);
-            ExecuteNonQuery(q1);
-            ExecuteNonQuery(q2);
-
-            timer.Stop();
-            Console.WriteLine("FTS Import done"+timer.ElapsedMilliseconds.ToString());
+            }            
         }
 
         // returns search results from input string
