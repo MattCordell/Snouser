@@ -17,10 +17,25 @@ namespace Snouser
             InitializeComponent();
 
             SnouserDatabase s = new SnouserDatabase();
+            SCTsyndication synd = new SCTsyndication();
+
             this.searchBox.Text = "search for something...";
             this.label_version.Text = s.GetCurrentTerminologyVersionUsed();
             this.label_lastupdated.Text = s.GetLastUpdateTime();
             
+
+            if (synd.IsUpToDate(s.GetCurrentTerminologyVersionUsed()))
+            {
+                btn_Update.Text = "All good!";
+                btn_Update.Enabled = false;
+                btn_Update.BackColor = Color.LawnGreen;
+            }
+            else
+            {
+                btn_Update.Text = "Update Available";
+                btn_Update.Enabled = true;
+                btn_Update.BackColor = Color.OrangeRed;
+            }            
         }
 
         private void searchBox_TextChanged(object sender, EventArgs e)
@@ -42,6 +57,16 @@ namespace Snouser
             }
 
         }
-        
+
+        private void btn_Update_Click(object sender, EventArgs e)
+        {
+            SnouserDatabase s = new SnouserDatabase();
+            SCTsyndication synd = new SCTsyndication();
+
+            string zipurl = synd.FetchDeltaURL(s.GetCurrentTerminologyVersionUsed());
+            string zipversion = synd.FetchDeltaVersion(s.GetCurrentTerminologyVersionUsed());
+            s.ImportZip(zipurl, zipversion);
+            this.Parent.Refresh();
+        }
     }
 }

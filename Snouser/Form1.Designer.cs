@@ -34,6 +34,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.searchBox = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.btn_Update = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -96,11 +97,22 @@
             this.dataGridView1.Size = new System.Drawing.Size(410, 225);
             this.dataGridView1.TabIndex = 6;
             // 
+            // btn_Update
+            // 
+            this.btn_Update.Location = new System.Drawing.Point(271, 312);
+            this.btn_Update.Name = "btn_Update";
+            this.btn_Update.Size = new System.Drawing.Size(151, 23);
+            this.btn_Update.TabIndex = 7;
+            this.btn_Update.Text = "button1";
+            this.btn_Update.UseVisualStyleBackColor = true;
+            this.btn_Update.Click += new System.EventHandler(this.btn_Update_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(522, 352);
+            this.Controls.Add(this.btn_Update);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.searchBox);
             this.Controls.Add(this.label2);
@@ -122,6 +134,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox searchBox;
         private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Button btn_Update;
     }
 }
 
