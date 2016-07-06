@@ -82,7 +82,7 @@
             // searchBox
             // 
             this.searchBox.Location = new System.Drawing.Point(24, 23);
-            this.searchBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.searchBox.Margin = new System.Windows.Forms.Padding(6);
             this.searchBox.Name = "searchBox";
             this.searchBox.Size = new System.Drawing.Size(904, 31);
             this.searchBox.TabIndex = 0;
@@ -91,7 +91,7 @@
             // btn_Update
             // 
             this.btn_Update.Location = new System.Drawing.Point(450, 590);
-            this.btn_Update.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btn_Update.Margin = new System.Windows.Forms.Padding(6);
             this.btn_Update.Name = "btn_Update";
             this.btn_Update.Size = new System.Drawing.Size(302, 44);
             this.btn_Update.TabIndex = 7;
@@ -111,9 +111,13 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.ColumnHeadersVisible = false;
             this.dataGridView1.Location = new System.Drawing.Point(27, 77);
             this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.RowTemplate.Height = 33;
             this.dataGridView1.Size = new System.Drawing.Size(901, 460);
             this.dataGridView1.TabIndex = 9;
@@ -131,7 +135,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label_lastupdated);
             this.Controls.Add(this.label_version);
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "Form1";
             this.Text = "Snouser";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
