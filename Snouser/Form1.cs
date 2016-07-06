@@ -56,7 +56,8 @@ namespace Snouser
                     col.Visible = false;
                 }
                 //show the desired
-                dataGridView1.Columns["term"].Visible = true;                               
+                dataGridView1.Columns["term"].Visible = true;
+                Console.WriteLine("searched");
                 
             }
 
