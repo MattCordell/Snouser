@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Snouser
@@ -28,14 +23,17 @@ namespace Snouser
             if (synd.IsUpToDate(s.GetCurrentTerminologyVersionUsed()))
             {
                 btn_Update.Text = "All good!";
-                btn_Update.Enabled = false;
+                btn_Update.Enabled = false;               
                 btn_Update.BackColor = Color.LawnGreen;
+                checkbox_TotalUpdate.Checked = false;
+                checkbox_TotalUpdate.Enabled = false;
             }
             else
             {
                 btn_Update.Text = "Update Available";
                 btn_Update.Enabled = true;
                 btn_Update.BackColor = Color.OrangeRed;
+                checkbox_TotalUpdate.Enabled = true;
             }
 
             this.label_version.Text = s.GetCurrentTerminologyVersionUsed();
@@ -52,13 +50,14 @@ namespace Snouser
                 SnouserDatabase s = new SnouserDatabase();
                 DataView searchResults = new DataView(s.PerformSearch(searchBox.Text.Trim()));
                 dataGridView1.DataSource = searchResults;
-                //hide everything by default
+                //hide everything by default               
                 foreach (DataGridViewColumn col in dataGridView1.Columns)
                 {
                     col.Visible = false;
                 }
                 //show the desired
                 dataGridView1.Columns["term"].Visible = true;                               
+                
             }
 
         }
@@ -71,14 +70,19 @@ namespace Snouser
             btn_Update.Text = "Updating...";
             btn_Update.Enabled = false;
             btn_Update.BackColor = Color.Cornsilk;
-            UseWaitCursor = true;
-            this.Refresh();
-            string zipurl = synd.FetchDeltaURL(sdb.GetCurrentTerminologyVersionUsed());
-            string zipversion = synd.FetchDeltaVersion(sdb.GetCurrentTerminologyVersionUsed());
-            sdb.ImportZip(zipurl, zipversion);
-            btn_Update.Text = "Update done";
-            System.Threading.Thread.Sleep(10000);
-            UseWaitCursor = false;
+            this.UseWaitCursor = true;
+            this.Refresh();            
+
+            // perform a delta patch (inside the do)
+            // keep doing this while not up to date, and checkbox marked
+            do
+            {
+                string zipurl = synd.FetchDeltaURL(sdb.GetCurrentTerminologyVersionUsed());
+                string zipversion = synd.FetchDeltaVersion(sdb.GetCurrentTerminologyVersionUsed());
+                sdb.ImportZip(zipurl, zipversion);
+            } while (!synd.IsUpToDate(sdb.GetCurrentTerminologyVersionUsed()) && checkbox_TotalUpdate.Checked);
+                       
+            this.UseWaitCursor = false;
             UpdateUIelements();
             this.Refresh();                                 
         }

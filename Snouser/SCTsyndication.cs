@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Xml;
-using System.IO;
-using System.Xml.Serialization;
-using System.Xml.XPath;
 
 namespace Snouser
 {
@@ -17,7 +10,7 @@ namespace Snouser
         //string releaseType = "SCT_RF2_DELTA";
         //private string codeSystemURIv = currentVersion;
         //string codeSystemURI = codeSystemURIv.Substring(0, codeSystemURIv.Length - 17);        
-
+        
         public bool IsUpToDate(string currentVersion)
         {
             bool status = true;

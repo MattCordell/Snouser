@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Data.SQLite;
 using System.Data;
 using System.IO;
@@ -41,7 +39,7 @@ namespace Snouser
             // SnouserDB only uses a description table.
             ExecuteNonQuery(@"DROP TABLE IF EXISTS import_descriptions;
                               CREATE TABLE import_descriptions ( id LONG, effectiveTime INTEGER, active INTEGER, moduleId LONG, conceptId LONG, languageCode TEXT, typeId LONG, term TEXT, caseSignificanceId LONG);");
-            ExecuteNonQuery(@"DROP TABLE if exists FTSsearcher
+            ExecuteNonQuery(@"DROP TABLE if exists FTSsearcher;
                               CREATE VIRTUAL TABLE FTSsearcher USING FTS4(conceptId, active,typeId,term, tokenize=porter);");
             // Table to track versions imported into the system
             ExecuteNonQuery(@"DROP TABLE IF EXISTS updateLog;
@@ -58,7 +56,7 @@ namespace Snouser
             {
                 cnn.Open();
                 SQLiteCommand cmd = cnn.CreateCommand();
-                cmd.CommandText = txtQuery;
+                cmd.CommandText = txtQuery;                
                 cmd.ExecuteNonQuery();
             }            
         }
@@ -90,10 +88,11 @@ namespace Snouser
                 cnn.Open();
                 SQLiteCommand cmd = cnn.CreateCommand();
                 cmd.CommandText = txtQuery;
+
                 using (SQLiteDataReader rdr = cmd.ExecuteReader())
                 {
                     dt.Load(rdr);
-                    rdr.Close();
+                    
                 }                                
             }
             return dt;
@@ -219,7 +218,7 @@ namespace Snouser
             }
 
 
-            string searchQuery = String.Format("select * from FTSsearcher where term match '{0}' limit 10;",s.ToString());
+            string searchQuery = String.Format("select * from FTSsearcher where active = 1 and term match '{0}' limit 13;",s.ToString());
 
             return QueryResultSet(searchQuery);
         }
