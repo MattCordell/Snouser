@@ -217,7 +217,7 @@ namespace Snouser
                 s.Append(token).Append("* ");
             }
 
-            string searchQuery = String.Format("select * from FTSsearcher where active = 1 and term match '{0}' limit 13;", s.ToString());
+            string searchQuery = String.Format("select * from FTSsearcher where term match '{0}' limit 13;", s.ToString());
 
             return QueryResultSet(searchQuery);
         }
