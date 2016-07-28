@@ -10,13 +10,11 @@ using System.Net;
 namespace Snouser
 {
 
-    enum RF2format { Full, Snapshot, Delta};
-
     class SnouserDatabase
     {
         const string dbFile = "Snouser.db";
         private string connString = "data source=" + dbFile + ";Version=3;Cache Size=10000;Page Size=4096;Synchronous=NORMAL;Journal Mode=WAL;";
-
+        
         public SnouserDatabase()
         {
             //if the database doesn't exist, initialise.
@@ -35,6 +33,8 @@ namespace Snouser
             }
             
             SQLiteConnection.CreateFile(dbFile);
+          
+                      
 
             // SnouserDB only uses a description table.
             ExecuteNonQuery(@"DROP TABLE IF EXISTS import_descriptions;
@@ -45,8 +45,20 @@ namespace Snouser
             ExecuteNonQuery(@"DROP TABLE IF EXISTS updateLog;
                               CREATE TABLE updateLog ( vURI TEXT, logTime TEXT);");
 
-            ImportZip(@"C:\Users\MatthewCordell\Downloads\NCTS_SCT_RF2_DISTRIBUTION_32506021000036107-20160331-FULL.zip", "http://snomed.info/sct/32506021000036107/version/20160331");
+            ImportZip(@"C:\Users\MatthewCordell\Downloads\NCTS_SCT_RF2_DISTRIBUTION_32506021000036107-20160229-FULL.zip", "http://snomed.info/sct/32506021000036107/version/20160229");
 
+            
+
+        }
+
+        //placeholder method - will become a search ranking algorithm
+        [SQLiteFunction(Name = "ToUpper", Arguments = 1, FuncType = FunctionType.Scalar)]
+        public class ToUpper : SQLiteFunction
+        {
+            public override object Invoke(object[] args)
+            {
+                return args[0].ToString().ToUpper();
+            }
         }
 
         #region Database helper methods
@@ -54,7 +66,7 @@ namespace Snouser
         {
             using (SQLiteConnection cnn = new SQLiteConnection(connString))
             {
-                cnn.Open();
+                cnn.Open();                
                 SQLiteCommand cmd = cnn.CreateCommand();
                 cmd.CommandText = txtQuery;                
                 cmd.ExecuteNonQuery();
@@ -101,44 +113,21 @@ namespace Snouser
         #endregion
 
         public void ImportZip(string zipPath, string versionURI)
-        {            
+        {
             string temp = Directory.GetCurrentDirectory() + @"\temp\";
-            if (Directory.Exists(temp))
-            {
-                Directory.Delete(temp, true);
-            }
-            else
-            {
-                Directory.CreateDirectory(temp);
-            }
+            if (!Directory.Exists(temp)) {Directory.CreateDirectory(temp);}
 
-            Uri zipUri = new Uri(zipPath);
-            
-            using (var client = new WebClient())
+            using (ZipArchive archive = ZipFile.OpenRead(zipPath))
             {
-                //bit of debug code to accept self signed certs.
-                //change to alternative, with specific conditions,
-                #if DEBUG
-                System.Net.ServicePointManager.ServerCertificateValidationCallback += (se, cert, chain, sslerror) => true;
-                #endif
-                client.DownloadFile(zipUri, temp + @"patch.zip");              
-            }
-
-            using (ZipArchive archive = ZipFile.OpenRead(temp + @"patch.zip"))
-            {
-
                 archive.ExtractToDirectory(temp);
                 //find the RF2 delta directory (only expecting one!)             
                 string file = Directory.GetFiles(temp, "*Description_*.txt", System.IO.SearchOption.AllDirectories).FirstOrDefault();
-
-                tablePump(file);
-
             }
 
             //clean up temp directory
             if (Directory.Exists(temp))
             {
-                Directory.Delete(temp, true);
+               Directory.Delete(temp, true);
             }
 
             //log the version just imported
@@ -147,7 +136,7 @@ namespace Snouser
 
         private void UpdateVersionLog(string versionURI)
         {
-            string insertCommand = String.Format("INSERT INTO updateLog VALUES (\"{0}\",\"{1}\");", versionURI, DateTime.Now.ToString());
+            string insertCommand = String.Format("INSERT INTO updateLog VALUES (\"{0}\",\"{1}\");", versionURI, DateTime.Now.ToString("u"));
             ExecuteNonQuery(insertCommand);            
         }
 
@@ -217,7 +206,7 @@ namespace Snouser
                 s.Append(token).Append("* ");
             }
 
-            string searchQuery = String.Format("select * from FTSsearcher where term match '{0}' limit 13;", s.ToString());
+            string searchQuery = String.Format("select term AS term from FTSsearcher where term match '{0}' limit 13;", s.ToString());
 
             return QueryResultSet(searchQuery);
         }

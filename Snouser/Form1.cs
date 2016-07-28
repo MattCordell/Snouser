@@ -5,6 +5,8 @@ using System.Windows.Forms;
 
 namespace Snouser
 {
+
+
     public partial class Form1 : Form
     {
         public Form1()
@@ -78,9 +80,9 @@ namespace Snouser
             // keep doing this while not up to date, and checkbox marked
             do
             {
-                string zipurl = synd.FetchDeltaURL(sdb.GetCurrentTerminologyVersionUsed());
+                Uri zipurl = synd.FetchDeltaURL(sdb.GetCurrentTerminologyVersionUsed());                
                 string zipversion = synd.FetchDeltaVersion(sdb.GetCurrentTerminologyVersionUsed());
-                sdb.ImportZip(zipurl, zipversion);
+                sdb.ImportZip(synd.DownloadFile(zipurl), zipversion);
             } while (!synd.IsUpToDate(sdb.GetCurrentTerminologyVersionUsed()) && checkbox_TotalUpdate.Checked);
                        
             this.UseWaitCursor = false;

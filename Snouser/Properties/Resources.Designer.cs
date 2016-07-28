@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Snouser.Properties
+namespace NCTS.Properties
 {
 
 
