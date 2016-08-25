@@ -122,6 +122,7 @@ namespace Snouser
                 archive.ExtractToDirectory(temp);
                 //find the RF2 delta directory (only expecting one!)             
                 string file = Directory.GetFiles(temp, "*Description_*.txt", System.IO.SearchOption.AllDirectories).FirstOrDefault();
+                tablePump(file);
             }
 
             //clean up temp directory
