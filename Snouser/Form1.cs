@@ -89,5 +89,10 @@ namespace Snouser
             UpdateUIelements();
             this.Refresh();                                 
         }
+
+        private void searchBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            searchBox.Clear();
+        }
     }
 }
