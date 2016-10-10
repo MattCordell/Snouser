@@ -17,7 +17,7 @@ namespace Snouser
 
     class SCTsyndication
     {
-        private string SyndicationURL = "https://api.staging.healthterminologies.gov.au/syndication/v1/syndication.xml";
+        private string SyndicationURL = "https://api.healthterminologies.gov.au/syndication/v1/syndication.xml";
         //string releaseType = "SCT_RF2_DELTA";
         //private string codeSystemURIv = currentVersion;
         //string codeSystemURI = codeSystemURIv.Substring(0, codeSystemURIv.Length - 17);        

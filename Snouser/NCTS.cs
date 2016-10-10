@@ -27,7 +27,7 @@ namespace NCTS
     {
         private string clientId;
         private string clientSecret;
-        private string NCTSEndpoint = "https://www.staging.healthterminologies.gov.au/api";
+        private string NCTSEndpoint = "https://www.healthterminologies.gov.au/api";
         private string authenticationResource = "/controller/oauth2/token";
 
         public NCTSAuthentication(string id, string secret)
